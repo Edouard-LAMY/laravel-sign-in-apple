@@ -1,0 +1,67 @@
+{
+    "name": "lamy/laravel-sign-in-apple",
+    "description": "This is my package laravel-sign-in-apple",
+    "keywords": [
+        "lamy",
+        "laravel",
+        "laravel-sign-in-apple"
+    ],
+    "homepage": "https://github.com//laravel-sign-in-apple",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Edouard LAMY",
+            "email": "beber3786@hotmail.fr",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "guzzlehttp/guzzle": "^7.10",
+        "illuminate/contracts": "^11.0||^12.0",
+        "spatie/laravel-package-tools": "^1.16"
+    },
+    "require-dev": {
+        "nunomaduro/collision": "^8.8",
+        "orchestra/testbench": "^10.0.0||^9.0.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Lamy\\LaravelSignInApple\\": "src/",
+            "Lamy\\LaravelSignInApple\\Database\\Factories\\": "database/factories/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Lamy\\LaravelSignInApple\\Tests\\": "tests/",
+            "Workbench\\App\\": "workbench/app/"
+        }
+    },
+    "scripts": {
+        "post-autoload-dump": "@composer run prepare",
+        "prepare": "@php vendor/bin/testbench package:discover --ansi",
+        "analyse": "vendor/bin/phpstan analyse",
+        "test": "vendor/bin/pest",
+        "test-coverage": "vendor/bin/pest --coverage",
+        "format": "vendor/bin/pint"
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true,
+            "phpstan/extension-installer": true
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Lamy\\LaravelSignInApple\\LaravelSignInAppleServiceProvider"
+            ],
+            "aliases": {
+                "LaravelSignInApple": "Lamy\\LaravelSignInApple\\Facades\\LaravelSignInApple"
+            }
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
