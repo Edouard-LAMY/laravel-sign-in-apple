@@ -1,84 +1,209 @@
-# This is my package laravel-sign-in-apple
+# Laravel Sign In with Apple
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v//laravel-sign-in-apple.svg?style=flat-square)](https://packagist.org/packages//laravel-sign-in-apple)
-[![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status//laravel-sign-in-apple/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com//laravel-sign-in-apple/actions?query=workflow%3Arun-tests+branch%3Amain)
-[![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status//laravel-sign-in-apple/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com//laravel-sign-in-apple/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
 [![Total Downloads](https://img.shields.io/packagist/dt//laravel-sign-in-apple.svg?style=flat-square)](https://packagist.org/packages//laravel-sign-in-apple)
 
-This is where your description should go. Limit it to a paragraph or two. Consider adding a small example.
 
-## Support us
+**Laravel Sign In with Apple** is a simple package that makes it easier to implement **Apple Sign In** using Laravel and Socialite.
 
-[<img src="https://github-ads.s3.eu-central-1.amazonaws.com/laravel-sign-in-apple.jpg?t=1" width="419px" />](https://spatie.be/github-ad-click/laravel-sign-in-apple)
+It handles Apple-specific configurations, token generation, and user data parsing to provide a smooth authentication flow.
 
-We invest a lot of resources into creating [best in class open source packages](https://spatie.be/open-source). You can support us by [buying one of our paid products](https://spatie.be/open-source/support-us).
+---
 
-We highly appreciate you sending us a postcard from your hometown, mentioning which of our package(s) you are using. You'll find our address on [our contact page](https://spatie.be/about-us). We publish all received postcards on [our virtual postcard wall](https://spatie.be/open-source/postcards).
+## 🚀 Features
 
-## Installation
+- Easy integration with Laravel and Socialite
+- Automatic `client_secret` generation for Apple
+- Secure decoding of Apple tokens
+- Simple `.env` configuration
+- Fully customizable authentication logic
+
+---
+
+## 📦 Installation
 
 You can install the package via composer:
 
 ```bash
-composer require /laravel-sign-in-apple
+composer require lamy/laravel-sign-in-apple
 ```
 
-You can publish and run the migrations with:
-
-```bash
-php artisan vendor:publish --tag="laravel-sign-in-apple-migrations"
-php artisan migrate
-```
-
-You can publish the config file with:
+You can publish the configuration (if needed):
 
 ```bash
 php artisan vendor:publish --tag="laravel-sign-in-apple-config"
 ```
 
-This is the contents of the published config file:
+## ⚙️ Apple Developer Configuration
 
-```php
-return [
-];
+### 1. Create an App ID
+
+- Go to the [Apple Developer Console](https://developer.apple.com/)
+- Create a new App ID: [Create a Bundle ID](https://developer.apple.com/account/resources/identifiers/list/bundleId)
+  - **Description**: `example.com App ID`
+  - **Bundle ID (explicit)**: `com.example.id`
+  - Enable: ✅ **Sign In with Apple**
+- Retrieve your **Team ID** (e.g. `123AZ987ZA`)
+- Add it to your `.env` file:
+
+```env
+APPLE_TEAM_ID=123AZ987ZA
 ```
 
-Optionally, you can publish the views using
+### 2. Create a Service ID
+
+- Go to [Create a Service ID](https://developer.apple.com/account/resources/identifiers/list/serviceId)
+- Click **➕ Add**:
+  - **Description**: `example.com Service ID`
+  - **Identifier**: `com.example.service`
+  - Enable: ✅ **Sign In with Apple**
+- Click **Configure** under "Sign In with Apple":
+  - **Primary App ID**: select the App ID created in step 1
+  - **Web Domain**: `example.com` (your website domain)
+  - **Return URL**: `https://example.com/auth/callback` (your Laravel route)
+- Click **Save**
+- Go back and click **Edit** to confirm the config is saved
+- Add this to your `.env`:
+
+```env
+APPLE_CLIENT_ID=com.example.service
+```
+
+### 3. Create a Sign In with Apple Key
+
+- Go to **Create a Key** in the Apple Developer Console
+- Click **+ Add**
+- Enter a **Key Name** (e.g., Sign In with Apple Key)
+- ✅ Enable **Sign In with Apple**
+- Select the **Primary App ID** created in step 1
+- Click **Continue**, then **Register**
+- Click **Download** to get the `.p8` key file (⚠️ this download is only available once)
+- Rename the downloaded file from `AuthKey_12345ABCD.p8` to `key.txt` by running:
 
 ```bash
-php artisan vendor:publish --tag="laravel-sign-in-apple-views"
+mv AuthKey_12345ABCD.p8 key.txt
+```
+Place the key.txt file at the root of your Laravel project (same level as your .env)
+
+Add the following to your .env file:
+
+```env
+APPLE_KEY_ID=12345ABCD
 ```
 
-## Usage
+### 4. Final .env keys overview
 
-```php
-$laravelSignInApple = new Lamy\LaravelSignInApple();
-echo $laravelSignInApple->echoPhrase('Hello, Lamy!');
+You should have these keys in your .env file:
+```env
+APPLE_CLIENT_ID=com.example.service
+APPLE_CLIENT_SECRET=""
+APPLE_TEAM_ID=123AZ987ZA
+APPLE_KEY_ID=12345ABCD
 ```
 
-## Testing
+The APPLE_CLIENT_SECRET will be generated later.
 
+### 5. Generate the Client Secret Token
+
+To generate the first client secret token, run the following in artisan tinker:
 ```bash
-composer test
+php artisan tinker
 ```
 
-## Changelog
+Then inside tinker:
+```bash
+SignInApple::generateToken();
+```
 
-Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.
+Copy the generated token and set it in your .env:
+```env
+APPLE_CLIENT_SECRET="your_generated_token_here"
+```
 
-## Contributing
+### 6. Routing
+Add the following routes to your routes/auth.php:
+```bash
+use App\Http\Controllers\Auth\SocialAuthenticationController;
 
-Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
+Route::get('/auth/redirect/apple', [SocialAuthenticationController::class, 'socialRedirect'])->name('auth-social');
+Route::post('/auth/callback/apple', [SocialAuthenticationController::class, 'appleCallback'])->name('apple-callback');
+```
 
-## Security Vulnerabilities
+### 7. Controller Example
+Here is an example controller to handle the Apple Sign In flow:
+```bash
+<?php
 
-Please review [our security policy](../../security/policy) on how to report security vulnerabilities.
+namespace App\Http\Controllers\Auth;
 
-## Credits
+use App\Models\User;
+use Illuminate\Http\Request;
+use Lamy\LaravelSignInApple;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use Laravel\Socialite\Facades\Socialite;
 
-- [Edouard LAMY](https://github.com/)
-- [All Contributors](../../contributors)
+class SocialAuthenticationController extends Controller
+{
+    public function socialRedirect()
+    {
+        return Socialite::driver('apple')->scopes(['name', 'email'])->redirect();
+    }
 
-## License
+    public function appleCallback(LaravelSignInApple $signInApple, Request $request)
+    {
+        $socialUser = $signInApple->decodeAppleToken($request);
 
-The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
+        if (property_exists($socialUser, 'success') && $socialUser->success === false) {
+            return redirect()->intended('/')->with('messageRefus', $socialUser->message);
+        }
+        
+        return $this->authenticate($socialUser, $request);
+    }
+
+    public function authenticate(object $socialUser, Request $request)
+    {
+        $userExist = User::where("apple_id", $socialUser->getId())->first();
+        $redirectTo = '/';
+
+        if ($userExist) {
+            Auth::login($userExist);
+            $redirectTo = '/home';
+        } elseif ($socialUser->getEmail()) {
+            $user = User::updateOrCreate(
+                ['email'                    => $socialUser->getEmail()],
+                [
+                    'firstname'             => $socialUser->getName()['firstName'] ?? null,
+                    'lastname'              => $socialUser->getName()['lastName'] ?? null,
+                    'email'                 => $socialUser->getEmail(),
+                    'apple_id'              => $socialUser->getId(),
+                    'apple_token'           => $socialUser->token,
+                    'apple_refresh_token'   => $socialUser->refreshToken,
+                ]
+            );
+
+            Auth::login($user);
+            $redirectTo = '/home';
+        }
+
+        return redirect($redirectTo);
+    }
+}
+```
+
+⚠️ Handling Missing Name and Email
+
+If a user doesn’t provide name and email during the Apple Sign In, they can:
+On their iPhone, go to Settings
+Tap on their Avatar or Name
+Tap Sign In with Apple
+Remove the app that was previously authorized
+
+Retry the login flow; Apple will prompt for name and email only once
+
+For more info, see:
+StackOverflow - Laravel Socialite Apple Sign In no user info
+https://stackoverflow.com/questions/78101351/laravel-socialite-apple-sign-in-no-user-info/78294921
+
+
+## Credits - [Edouard LAMY](https://github.com/)
