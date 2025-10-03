@@ -1,5 +1,6 @@
 {
     "name": "lamy/laravel-sign-in-apple",
+    "version": "0.0.1",
     "description": "This is my package laravel-sign-in-apple",
     "keywords": [
         "lamy",
