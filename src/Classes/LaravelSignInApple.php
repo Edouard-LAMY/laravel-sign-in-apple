@@ -43,7 +43,7 @@ class LaravelSignInApple
             'code'          => $request->input('code'),
             'redirect_uri'  => route('apple-callback'),
             'client_id'     => config('services.apple.client_id'),
-            'client_secret' => $this->generateToken(),
+            'client_secret' => self::generateToken(),
         ]);
         $data           = $response->json();
 
@@ -71,7 +71,7 @@ class LaravelSignInApple
             }
     
             // Convert in PEM
-            $publicKeyPem   = $this->buildPemFromModulusExponent($matchingKey['n'], $matchingKey['e']);
+            $publicKeyPem   = self::buildPemFromModulusExponent($matchingKey['n'], $matchingKey['e']);
     
             // Decode token
             JWT::$leeway = 300; 
@@ -129,7 +129,7 @@ class LaravelSignInApple
         return $socialUser;
     }
 
-    public function buildPemFromModulusExponent(string $n, string $e): string
+    public static function buildPemFromModulusExponent(string $n, string $e): string
     {
         $modulus = new BigInteger(JWT::urlsafeB64Decode($n), 256);
         $exponent = new BigInteger(JWT::urlsafeB64Decode($e), 256);
