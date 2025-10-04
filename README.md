@@ -129,7 +129,7 @@ php artisan tinker
 
 Then inside tinker:
 ```bash
-LaravelSignInApple::generateToken();
+\Lamy\LaravelSignInApple\LaravelSignInApple::generateToken();
 ```
 
 Copy the generated token and set it in your .env:
@@ -139,7 +139,7 @@ APPLE_CLIENT_SECRET="your_generated_token_here"
 
 ### 6. Routing
 Add the following routes to your routes/auth.php:
-Specify the callback name as: apple-callback
+⚠️ Specify the callback name as: apple-callback
 ```bash
 use App\Http\Controllers\Auth\SocialAuthenticationController;
 
@@ -208,6 +208,64 @@ class SocialAuthenticationController extends Controller
     }
 }
 ```
+
+### 🔐 Token Generation and Apple Authentication
+#### `generateToken()`
+
+The static method `generateToken()` does **not require any parameters**.
+
+If you've run the installation command:
+
+```bash
+php artisan laravel-sign-in-apple:install
+```
+and properly set the following environment variables:
+APPLE_CLIENT_ID
+APPLE_TEAM_ID
+APPLE_KEY_ID
+
+Then this method will return a string, which is your APPLE_CLIENT_SECRET — you can paste it into your .env file.
+ℹ️ This token is valid for 6 months. After that, you’ll need to generate a new one and update APPLE_CLIENT_SECRET again.
+
+
+### 🔐 Decode Apple Token Authentication
+#### `decodeAppleToken(Request $request)`
+
+The static method decodeAppleToken() expects an instance of Illuminate\Http\Request as a parameter, to handle the callback from Apple.
+
+It will:
+Extract the authorization code from $request->input('code')
+Exchange the authorization code for an access token,
+Verify the Apple ID token’s signature,
+Extract user data (ID, email, name) and return a structured object for use in your app.
+
+✅ Returned object structure
+The returned object provides the following methods and properties:
+
+```bash
+$socialUser->getId();         // string       (Apple user ID)
+$socialUser->getEmail();      // string|null  (Apple email)
+$socialUser->getName();       // array|null   ['firstName' => ..., 'lastName' => ...]
+$socialUser->token;           // string|null  (Apple access token)
+$socialUser->refreshToken;    // string|null  (Apple refresh token)
+```
+
+⚠️ Errors are silently encapsulated in the returned object using:
+```bash
+$socialUser->success = false;
+$socialUser->message = 'Error during authentication via Apple.';
+```
+You can choose to handle these errors manually.
+
+🔒 Security notes
+The Apple ID token (JWT) is validated against Apple’s public key.
+
+The method uses:
+firebase/php-jwt
+phpseclib/phpseclib
+
+to handle cryptographic operations and ensure secure authentication.
+
 
 ⚠️ Handling Missing Name and Email
 
