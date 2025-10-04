@@ -36,7 +36,7 @@ class LaravelSignInApple
         return $token;
     }
 
-    public function decodeAppleToken(Request $request): object
+    public static function decodeAppleToken(Request $request): object
     {
         $response = Http::asForm()->post('https://appleid.apple.com/auth/token', [
             'grant_type'    => 'authorization_code',

@@ -139,6 +139,7 @@ APPLE_CLIENT_SECRET="your_generated_token_here"
 
 ### 6. Routing
 Add the following routes to your routes/auth.php:
+Specify the callback name as: apple-callback
 ```bash
 use App\Http\Controllers\Auth\SocialAuthenticationController;
 
