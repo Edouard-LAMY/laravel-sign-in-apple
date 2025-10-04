@@ -28,11 +28,17 @@ You can install the package via composer:
 composer require lamy/laravel-sign-in-apple
 ```
 
-You can publish the configuration (if needed):
+You can add the configuration apple in config/services.php:
 
 ```bash
-php artisan vendor:publish --tag="laravel-sign-in-apple-config"
+php artisan laravel-sign-in-apple:install
 ```
+
+We also recommend using laravel/socialite and socialiteproviders/apple to automatically manage user resolution and persistence:
+```bash
+composer require laravel/socialite socialiteproviders/apple
+```
+
 
 ## ⚙️ Apple Developer Configuration
 
@@ -78,12 +84,12 @@ APPLE_CLIENT_ID=com.example.service
 - Select the **Primary App ID** created in step 1
 - Click **Continue**, then **Register**
 - Click **Download** to get the `.p8` key file (⚠️ this download is only available once)
-- Rename the downloaded file from `AuthKey_12345ABCD.p8` to `key.txt` by running:
+- Rename the downloaded file from `AuthKey_12345ABCD.p8` to `key.pem` by running:
 
 ```bash
-mv AuthKey_12345ABCD.p8 key.txt
+mv AuthKey_12345ABCD.p8 key.pem
 ```
-Place the key.txt file at the root of your Laravel project (same level as your .env)
+Place the key.pem file at the root of your Laravel project (same level as your .env)
 
 Add the following to your .env file:
 
@@ -112,7 +118,7 @@ php artisan tinker
 
 Then inside tinker:
 ```bash
-SignInApple::generateToken();
+LaravelSignInApple::generateToken();
 ```
 
 Copy the generated token and set it in your .env:
@@ -138,10 +144,10 @@ namespace App\Http\Controllers\Auth;
 
 use App\Models\User;
 use Illuminate\Http\Request;
-use Lamy\LaravelSignInApple;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Socialite\Facades\Socialite;
+use Lamy\LaravelSignInApple\Facades\LaravelSignInApple;
 
 class SocialAuthenticationController extends Controller
 {
