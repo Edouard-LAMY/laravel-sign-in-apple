@@ -39,6 +39,17 @@ We also recommend using laravel/socialite and socialiteproviders/apple to automa
 composer require laravel/socialite socialiteproviders/apple
 ```
 
+Add Event to AppServiceProvider.php in function boot():
+```bash
+use Illuminate\Support\Facades\Event;
+use SocialiteProviders\Apple\Provider;
+use SocialiteProviders\Manager\SocialiteWasCalled;
+
+Event::listen(function (SocialiteWasCalled $event) {
+    $event->extendSocialite('apple', Provider::class);
+});
+```
+
 
 ## ⚙️ Apple Developer Configuration
 
@@ -161,7 +172,7 @@ class SocialAuthenticationController extends Controller
         $socialUser = $signInApple->decodeAppleToken($request);
 
         if (property_exists($socialUser, 'success') && $socialUser->success === false) {
-            return redirect()->intended('/')->with('messageRefus', $socialUser->message);
+            return redirect()->intended('/')->with('error', $socialUser->message);
         }
         
         return $this->authenticate($socialUser, $request);

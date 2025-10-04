@@ -43,13 +43,13 @@ class LaravelSignInApple
             'code'          => $request->input('code'),
             'redirect_uri'  => route('apple-callback'),
             'client_id'     => config('services.apple.client_id'),
-            'client_secret' => AppleToken::generateToken(),
+            'client_secret' => $this->generateToken(),
         ]);
         $data           = $response->json();
 
         $socialUser = new class {
             public bool $success = false;
-            public string $message = 'Erreur lors de l’authentification via Apple.';
+            public string $message = 'Error during authentication via Apple.';
         };
 
         if (isset($data['id_token'])) {
