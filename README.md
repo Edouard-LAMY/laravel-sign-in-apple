@@ -1,8 +1,6 @@
 # Laravel Sign In with Apple
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v//laravel-sign-in-apple.svg?style=flat-square)](https://packagist.org/packages//laravel-sign-in-apple)
-[![Total Downloads](https://img.shields.io/packagist/dt//laravel-sign-in-apple.svg?style=flat-square)](https://packagist.org/packages//laravel-sign-in-apple)
-
+[![Latest Version on Packagist](https://packagist.org/packages/lamy/laravel-sign-in-apple)]
 
 **Laravel Sign In with Apple** is a simple package that makes it easier to implement **Apple Sign In** using Laravel and Socialite.
 
