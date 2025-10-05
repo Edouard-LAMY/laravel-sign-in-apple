@@ -2,7 +2,7 @@
 
 [![Latest Version on Packagist](https://packagist.org/packages/lamy/laravel-sign-in-apple)]
 
-**Laravel Sign In with Apple** is a simple package that makes it easier to implement **Apple Sign In** using Laravel and Socialite.
+**Laravel Sign In with Apple** is a simple package that makes it easier to implement **Apple Sign In** using Laravel 12 and Socialite.
 
 It handles Apple-specific configurations, token generation, and user data parsing to provide a smooth authentication flow.
 
